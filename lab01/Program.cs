@@ -5,10 +5,13 @@ using System.Linq;
 using System.Text;
 using System.Collections.Generic;
 
+
 abstract class Player
 {
     public int Speed { get; set; }
     public int Health { get; set; }
+
+    [ImportantMember("Основное имя персонажа")]
     public string Name { get; set; }
     protected Player(string name)
     {
@@ -20,10 +23,14 @@ abstract class Player
     public abstract void Hi();
 }
 
+[GameCharacter("Этот класс представляет игрока-человека")]
 class Man : Player
 {
     public int Age { get; set; }
+
     private string _bio = "";
+
+    [ImportantMember("Биография персонажа")]
     public string Bio
     {
         get { return _bio; }
@@ -33,6 +40,9 @@ class Man : Player
     public Man() : base("defaultPlayer") { }
     public Man(string name) : base(name) { }
 
+    
+
+    [ImportantMember("Приветствие персонажа")]
     public override void Hi()
     {
         Console.WriteLine("Hi, I'm a man");
@@ -64,7 +74,6 @@ class Man : Player
         };
     }
 }
-
 
 public class DependencyContainer
 {
@@ -118,7 +127,7 @@ class Program
         GenerateHtmlDocumentation(typeof(Player), "Player.html");
         GenerateHtmlDocumentation(typeof(Man), "Man.html");
 
-        // 2.a) Работа с конструкторами
+        // 2 - работа с конструкторами
         ConstructorInfo[] constructors = typeof(Man).GetConstructors();
         foreach (ConstructorInfo constructor in constructors)
         {
@@ -131,7 +140,7 @@ class Program
             try
             {
                 object manInstance;
-                if(parameters.Length == 0) manInstance = constructor.Invoke(null);
+                if (parameters.Length == 0) manInstance = constructor.Invoke(null);
                 else manInstance = constructor.Invoke(new object[] { "Mike" });
                 Console.WriteLine($"Instance created successfully. Name: {(manInstance as Man).Name}");
 
@@ -143,11 +152,11 @@ class Program
 
         }
 
-        // 2.b) Работа с методами
+        // 2 - работа с методами
         MethodInfo[] methods = typeof(Man).GetMethods(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
-        foreach(MethodInfo method in methods)
+        foreach (MethodInfo method in methods)
         {
-            if(method.Name == "Calculate")
+            if (method.Name == "Calculate")
             {
                 method.Invoke(man, null);
                 break;
@@ -173,6 +182,22 @@ class Program
         Console.WriteLine($"Logger1 == Logger2: {logger == container.Resolve<ILogger>()}"); //Singleton
         Console.WriteLine($"Repo1 == Repo2: {repo1 == repo2}"); //Scoped
 
+        // анализ атрибутов класса Man
+        Type manType = typeof(Man);
+
+        // получаем атрибут класса
+        var classAttr = (GameCharacterAttribute)Attribute.GetCustomAttribute(manType, typeof(GameCharacterAttribute));
+        Console.WriteLine($"Атрибут класса: {classAttr?.Description ?? "N/A"}");
+
+        // получаем атрибуты всех членов класса
+        foreach (var member in manType.GetMembers(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
+        {
+            var attr = (ImportantMemberAttribute)Attribute.GetCustomAttribute(member, typeof(ImportantMemberAttribute));
+            if (attr != null)
+            {
+                Console.WriteLine($"{member.MemberType} '{member.Name}': {attr.Remark}");
+            }
+        }
     }
 
 
@@ -193,21 +218,21 @@ class Program
             writer.WriteLine($"<h1>Класс: {type.Name}</h1>");
             writer.WriteLine("<hr>");
 
-            // Поля
+            // поля
             writer.WriteLine("<h2>Поля:</h2>");
             foreach (var field in type.GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public))
             {
                 writer.WriteLine($"<p>{field.FieldType} {field.Name} ({(field.IsPrivate ? "private" : "public")})</p>");
             }
 
-            // Свойства
+            // свойства
             writer.WriteLine("<h2>Свойства:</h2>");
             foreach (var prop in type.GetProperties(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public))
             {
                 writer.WriteLine($"<p>{prop.PropertyType} {prop.Name} ({(prop.GetMethod?.IsPublic == true ? "public" : "private")})</p>");
             }
 
-            // Методы
+            // методы
             writer.WriteLine("<h2>Методы:</h2>");
             foreach (var method in type.GetMethods(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public))
             {
@@ -217,7 +242,7 @@ class Program
                 }
             }
 
-            // Статические методы
+            // статические методы
             writer.WriteLine("<h2>Статические методы:</h2>");
             foreach (var method in type.GetMethods(BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public))
             {
