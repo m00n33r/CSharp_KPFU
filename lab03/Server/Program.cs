@@ -24,17 +24,17 @@ class EchoServer
             // Запускаем сервер
             server.Start();
             Console.WriteLine("Сервер запущен на {0}:{1}", ipAddress, port);
+            Console.WriteLine("Ожидание подключения...");
 
+            // Принимаем клиента
+            TcpClient client = server.AcceptTcpClient();
+            Console.WriteLine("Клиент подключен!");
+
+            // Получаем поток для чтения и записи
+            NetworkStream stream = client.GetStream();
             while (true)
             {
-                Console.WriteLine("Ожидание подключения...");
 
-                // Принимаем клиента
-                TcpClient client = server.AcceptTcpClient();
-                Console.WriteLine("Клиент подключен!");
-
-                // Получаем поток для чтения и записи
-                NetworkStream stream = client.GetStream();
                 try
                 {
                     byte[] inputBuffer = new byte[3 * sizeof(int)];
@@ -44,7 +44,7 @@ class EchoServer
                     int a = BitConverter.ToInt32(inputBuffer, 0);
                     int b = BitConverter.ToInt32(inputBuffer, sizeof(int));
                     int c = BitConverter.ToInt32(inputBuffer, 2 * sizeof(int));
-                    Console.WriteLine($"\n-----------\n\nПолучены данные: {a}, {b} и {c}\nРешаем уравнение ({a})*x^2 + ({b})*x + ({c}) = 0\n\t...");
+                    Console.WriteLine($"Получены данные: {a}, {b} и {c}\nРешаем уравнение ({a})*x^2 + ({b})*x + ({c}) = 0\n\t  ...");
 
                     // Проверка на линейное уравнение
                     if (a == 0)
@@ -85,7 +85,7 @@ class EchoServer
                     }
 
                     // Отправляем эхо обратно клиенту
-                    Console.WriteLine("Ответ отправлен клиенту");
+                    Console.WriteLine("Ответ отправлен клиенту\n##################################\n");
                 }
                 catch (Exception ex)
                 {
@@ -94,9 +94,9 @@ class EchoServer
                 finally
                 {
                     // Закрываем соединение с клиентом
-                    stream.Close();
-                    client.Close();
-                    Console.WriteLine("Клиент отключен");
+                    // stream.Close();
+                    // client.Close();
+                    // Console.WriteLine("Клиент отключен");
                 }
             }
         }
