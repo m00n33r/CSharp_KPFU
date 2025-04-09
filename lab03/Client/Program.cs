@@ -34,7 +34,7 @@ class EchoClient
                 byte[] data = new byte[3 * sizeof(int)];
                 Buffer.BlockCopy(numbers, 0, data, 0, data.Length);  // Копируем числа в байтовый массив
                 stream.Write(data, 0, data.Length);
-                Console.WriteLine($"Отправлено: {input}");
+                Console.WriteLine($"Отправлено: {input}\n");
 
                 // Читаем ответ от сервера
                 byte[] typeBuffer = new byte[sizeof(int)];
@@ -65,13 +65,13 @@ class EchoClient
                     double x2 = BitConverter.ToDouble(answersBuffer, sizeof(double));
                     Console.WriteLine($"Два корня: {x1}, {x2}");
                 }
-                Console.WriteLine("###########################");
                 break;
             }
             // Закрываем соединение
             stream.Close();
             client.Close();
             Console.WriteLine("Соединение закрыто");
+            Console.WriteLine("###########################");
         }
         catch (Exception ex)
         {
