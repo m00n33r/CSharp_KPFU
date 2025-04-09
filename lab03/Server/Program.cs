@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 // Сервер
 class EchoServer
 {
+    static object locker = new();  // объект-заглушка
+
     public static async Task Main()
     {
         // Устанавливаем IP-адрес и порт
@@ -21,6 +23,8 @@ class EchoServer
         Console.WriteLine("Ожидание подключения...");
 
         int clientCount = 0;
+        int eqCount = 0;
+
         try
         {
             while (true)
@@ -28,7 +32,7 @@ class EchoServer
                 // Принимаем клиента
                 TcpClient client = server.AcceptTcpClient();
 
-                Thread thread = new Thread(() => HandleClient(client));
+                Thread thread = new Thread(() => HandleClient(client, ref eqCount));
                 thread.Name = $"Клиент №{++clientCount}";
                 thread.Start();
             }
@@ -43,7 +47,7 @@ class EchoServer
         }
     }
 
-    public static void HandleClient(TcpClient client)
+    public static void HandleClient(TcpClient client, ref int eqCount)
     {
         Console.WriteLine($"{Thread.CurrentThread.Name} подключен!");
         // Получаем поток для чтения и записи   
@@ -66,7 +70,7 @@ class EchoServer
                 stream.Write(type, 0, type.Length);
                 return;
             }
-
+            
             int d = b * b - 4 * a * c;
             if (d < 0)
             {
@@ -110,6 +114,8 @@ class EchoServer
             client.Close();
             Console.WriteLine($"{Thread.CurrentThread.Name} отключен");
         }
-        Console.WriteLine("###########################");
+
+        lock (locker) {
+        Console.WriteLine($"Кол-во решенных уравнений: {++eqCount}\n###########################\n\n");}
     }
 }
