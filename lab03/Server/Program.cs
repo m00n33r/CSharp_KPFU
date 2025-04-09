@@ -46,7 +46,6 @@ class EchoServer
     public static void HandleClient(TcpClient client)
     {
         Console.WriteLine($"{Thread.CurrentThread.Name} подключен!");
-        
         // Получаем поток для чтения и записи   
         NetworkStream stream = client.GetStream();
         try
@@ -111,5 +110,6 @@ class EchoServer
             client.Close();
             Console.WriteLine($"{Thread.CurrentThread.Name} отключен");
         }
+        Console.WriteLine("###########################");
     }
 }

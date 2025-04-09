@@ -65,7 +65,8 @@ class EchoClient
                     double x2 = BitConverter.ToDouble(answersBuffer, sizeof(double));
                     Console.WriteLine($"Два корня: {x1}, {x2}");
                 }
-                Console.WriteLine("\n--------------\n");
+                Console.WriteLine("###########################");
+                break;
             }
             // Закрываем соединение
             stream.Close();
